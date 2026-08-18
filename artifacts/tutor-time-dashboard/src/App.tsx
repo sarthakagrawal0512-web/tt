@@ -23,7 +23,6 @@ import {
   Info,
   LayoutDashboard,
   Lightbulb,
-  Menu,
   Printer,
   ScanSearch,
   Search,
@@ -305,7 +304,6 @@ function Classes() {
 
 function Home() {
   const [view, setView] = useState<View>('dashboard');
-  const [mobileOpen, setMobileOpen] = useState(false);
   const [toast, setToast] = useState('');
   const [ready, setReady] = useState(false);
   const [studentCount, setStudentCount] = useState(DATA.total);
@@ -345,7 +343,6 @@ function Home() {
   };
   const navigate = (next: View) => {
     setView(next);
-    setMobileOpen(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
   const [title, subtitle] = titles[view];
@@ -354,10 +351,8 @@ function Home() {
     <div className="app-shell">
       <div className="mobile-topbar">
         <div className="mobile-brand"><span className="mobile-mark">TT</span>Tutor Time</div>
-        <button type="button" className="menu-btn" onClick={() => setMobileOpen((open) => !open)} aria-label={mobileOpen ? 'Close navigation' : 'Open navigation'} data-testid="button-mobile-menu">{mobileOpen ? <X size={19} /> : <Menu size={19} />}</button>
       </div>
-      {mobileOpen && <div className="nav-scrim" onClick={() => setMobileOpen(false)} aria-hidden="true" />}
-      <aside className={`sidebar ${mobileOpen ? 'mobile-open' : ''}`}>
+      <aside className="sidebar">
         <div className="brand"><div className="brand-mark">TT</div><div><strong>Tutor Time</strong><small>Sports tournament</small></div></div>
         <div className="nav-label">Control room</div>
         <nav className="nav-list" aria-label="Dashboard sections">

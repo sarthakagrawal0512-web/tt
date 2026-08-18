@@ -382,28 +382,35 @@ button:focus-visible, input:focus-visible, select:focus-visible {
   .mobile-mark { display: grid; place-items: center; width: 31px; height: 31px; border-radius: 9px 9px 9px 3px; color: #10261e; background: #d9e84f; font: 700 15px var(--app-font-display); }
   .menu-btn { display: grid; place-items: center; width: 38px; height: 38px; border: 1px solid #d7d3c6; border-radius: 9px; color: #203228; background: #f9f8f1; }
   .main-content { width: 100%; margin: 0; padding: 22px 16px 40px; }
-  .topbar { margin-bottom: 19px; }
-  .top-actions { width: 100%; }
-  .top-actions .btn { flex: 1; }
-  .page-title { font-size: 37px; }
+  .topbar { flex-direction: column; align-items: stretch; margin-bottom: 19px; }
+  .top-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); width: 100%; }
+  .top-actions .btn { width: 100%; min-width: 0; }
+  .page-title { max-width: 12ch; font-size: clamp(35px, 10vw, 42px); }
   .score-strip { grid-template-columns: repeat(2, 1fr); }
   .score-item { min-height: 105px; padding: 16px; border-bottom: 1px solid rgba(255,255,255,.1); }
   .score-item:nth-child(2) { border-right: 0; }
   .score-item:nth-child(3), .score-item:nth-child(4) { border-bottom: 0; }
   .score-number { font-size: 37px; }
+  .panel-head { flex-direction: column; gap: 8px; }
+  .panel-meta { text-align: left; }
+  .panel-head > .btn { width: 100%; }
   .filter-row { flex-wrap: wrap; }
   .search-wrap { flex-basis: 100%; }
-  .select-input { flex: 1; width: auto; }
+  .select-input { flex: 1 1 0; width: auto; min-width: 0; }
   .donut-layout { flex-direction: column; align-items: stretch; }
   .donut-wrap { align-self: center; }
+  .legend { width: 100%; min-width: 0; }
+  .table-wrap { max-width: 100%; -webkit-overflow-scrolling: touch; }
   .order-grid { grid-template-columns: repeat(2, 1fr); }
   .order-card:last-child { grid-column: 1 / -1; }
   .sport-grid { grid-template-columns: repeat(2, 1fr); }
   .class-grid { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 430px) {
+  .main-content { overflow-x: hidden; }
   .panel { padding: 15px; }
   .page-subtitle { max-width: 260px; }
+  .top-actions .btn { padding-inline: 10px; font-size: 11px; }
   .score-item { padding: 14px 12px; }
   .score-label { font-size: 8px; }
   .summary-cards { gap: 7px; }

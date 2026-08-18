@@ -33,7 +33,7 @@ import {
 } from 'lucide-react';
 import { DATA, type RosterRecord } from './roster-data';
 
-type View = 'dashboard' | 'students' | 'jerseys' | 'sports' | 'classes';
+type View = 'dashboard' | 'students' | 'jerseys' | 'lists' | 'sports' | 'classes';
 type SortKey = keyof RosterRecord;
 type SortState = { key: SortKey; direction: 'asc' | 'desc' };
 
@@ -44,6 +44,7 @@ const navItems = [
   { id: 'dashboard' as View, label: 'Overview', icon: LayoutDashboard },
   { id: 'students' as View, label: 'Students', icon: UsersRound },
   { id: 'jerseys' as View, label: 'Jersey order', icon: Shirt },
+  { id: 'lists' as View, label: 'Jersey lists', icon: Download },
   { id: 'sports' as View, label: 'Sports', icon: CircleDot },
   { id: 'classes' as View, label: 'Classes', icon: GraduationCap },
 ];
@@ -280,6 +281,84 @@ function Jerseys({ onPrint }: { onPrint: () => void }) {
   );
 }
 
+function JerseyLists() {
+  const [selectedSize, setSelectedSize] = useState(SIZES[0]);
+  const selectedRecords = DATA.records.filter((record) => (record.size === 'XS' ? 'S' : record.size) === selectedSize);
+
+  const downloadSizeCSV = () => {
+    const header = ['Student Name', 'Name on Jersey', 'Jersey Size'];
+    const rows = selectedRecords.map((record) => [
+      record.name,
+      cleanJersey(record.jersey),
+      selectedSize,
+    ].map((value) => `"${value.replace(/"/g, '""')}"`).join(','));
+    const blob = new Blob([[header.join(','), ...rows].join('\n')], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `tutor-time-jersey-list-${selectedSize.toLowerCase()}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  return (
+    <section className="view" data-testid="view-lists">
+      <h2 className="section-title">Jersey list downloads</h2>
+      <p className="section-kicker">One ready-to-download list for each jersey size.</p>
+
+      <div className="size-tabs" role="tablist" aria-label="Choose a jersey size">
+        {SIZES.map((size) => {
+          const count = DATA.records.filter((record) => (record.size === 'XS' ? 'S' : record.size) === size).length;
+          return (
+            <button
+              type="button"
+              role="tab"
+              aria-selected={selectedSize === size}
+              className={`size-tab ${selectedSize === size ? 'active' : ''}`}
+              onClick={() => setSelectedSize(size)}
+              key={size}
+              data-testid={`tab-jersey-list-${size}`}
+            >
+              <span>{size}</span>
+              <small>{count} students</small>
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="panel list-download-panel" role="tabpanel" aria-label={`${selectedSize} jersey list`}>
+        <div className="panel-head">
+          <div>
+            <h2 className="panel-title">Size {selectedSize} roster</h2>
+            <div className="section-kicker">{selectedRecords.length} students · names exactly as they should appear on the jerseys</div>
+          </div>
+          <button type="button" className="btn primary" onClick={downloadSizeCSV} data-testid={`button-download-jersey-list-${selectedSize}`}>
+            <Download /> Download {selectedSize} list
+          </button>
+        </div>
+
+        <div className="table-wrap jersey-list-table-wrap">
+          <table className="data-table jersey-list-table">
+            <thead>
+              <tr><th>#</th><th>Student name</th><th>Name on jersey</th><th>Jersey size</th></tr>
+            </thead>
+            <tbody>
+              {selectedRecords.map((record, index) => (
+                <tr key={`${selectedSize}-${record.name}-${index}`}>
+                  <td className="table-index">{String(index + 1).padStart(2, '0')}</td>
+                  <td className="student-name">{record.name}</td>
+                  <td className="jersey-name">{cleanJersey(record.jersey)}</td>
+                  <td><span className="size-pill">{selectedSize}</span></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function Sports() {
   return (
     <section className="view" data-testid="view-sports">
@@ -322,6 +401,7 @@ function Home() {
     dashboard: ['Tournament overview', 'One roster. Every size, sport and class accounted for.'],
     students: ['Student directory', 'Find the right student before the next whistle.'],
     jerseys: ['Jersey order', 'Turn registrations into a purchase-ready count.'],
+    lists: ['Jersey list downloads', 'Download a clean list for each size.'],
     sports: ['Sports overview', 'See the shape of participation across every event.'],
     classes: ['Class overview', 'Keep the school community in the frame.'],
   };
@@ -365,7 +445,7 @@ function Home() {
           <div><div className="eyebrow">Tutor Time / {view === 'dashboard' ? 'Matchday desk' : view}</div><h1 className="page-title">{title}</h1><p className="page-subtitle">{subtitle}</p></div>
           <TopActions onExport={exportCSV} onPrint={print} />
         </header>
-        {!ready ? <div className="skeleton" data-testid="loading-dashboard" /> : view === 'dashboard' ? <Overview onNavigate={navigate} /> : view === 'students' ? <Students onCountChange={setStudentCount} /> : view === 'jerseys' ? <Jerseys onPrint={print} /> : view === 'sports' ? <Sports /> : <Classes />}
+        {!ready ? <div className="skeleton" data-testid="loading-dashboard" /> : view === 'dashboard' ? <Overview onNavigate={navigate} /> : view === 'students' ? <Students onCountChange={setStudentCount} /> : view === 'jerseys' ? <Jerseys onPrint={print} /> : view === 'lists' ? <JerseyLists /> : view === 'sports' ? <Sports /> : <Classes />}
       </main>
       {toast && <div className="toast" role="status" data-testid="status-toast"><Check size={15} />{toast}</div>}
       <span className="sr-only">Showing {studentCount} students when directory is selected.</span>
